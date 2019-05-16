@@ -5,6 +5,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity //switch off default security configuration and use custom.
@@ -18,8 +19,15 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        httpSecurity.authorizeRequests().antMatchers("/api/insecure").authenticated();
+        //check if this endpoint is authenticated.
+        httpSecurity.authorizeRequests().antMatchers("/api/secure").authenticated();
+
+        //does not check authentication for any other request.
         httpSecurity.authorizeRequests().anyRequest().permitAll();
+
+        //add our custom filter to the filters chain.
+        CustomFilter customFilter = new CustomFilter();
+        httpSecurity.addFilterAfter(customFilter, AnonymousAuthenticationFilter.class);
 
     }
 }
